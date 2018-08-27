@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>A d8 Game</title>
+	<style type="text/css">body { margin: 8% }</style>
+</head>
+<body>
+<h1>A d8 Game</h1>
+<p>In which a computer deals with bluffing.</p>
+<hr>
+<h2>Rules</h2>
+<p>The stake starts at $1.</p>
+<p>Player A rolls an eight-sided die and secretly looks at the result.</p>
+<p>Player A can then choose whether or not to double the stake to $2.</p>
+<p>If the stake is doubled, player B may either call (accept the new stake) or fold (concede the original stake to player A without seeing the die result).</p>
+<p>If player B calls (or player A does not double) then the die result is revealed.</p>
+<p>Player A wins if the result is 1, 2, or 3. Player B wins if the result is 4, 5, 6, 7, or 8.</p>
+<hr>
+
+<h2>Play as player B</h2>
+<p><button id="resetB" onclick="resetB()">Reset scores</button></p>
+<p>You have won $<span id="plyScoreB">0</span>.</p>
+<p>The computer has won $<span id="compScoreB">0</span>.</p>
+<hr>
+<p><button id="letRoll" onclick="letRoll()">Let the computer roll</button></p>
+<p id=firstB>The computer doubled the stakes.</p>
+<p><button id="call" onclick="call()">Call</button><button id="fold" onclick="fold()">Fold</button></p>
+<p id="secondB">The result was <span id="resultB">1</span>.</p>
+<p id="thirdB">You won $1.</p>
+<hr>
+
+<h2>Play as player A</h2>
+<p><button id="resetA" onclick="resetA()">Reset scores</button></p>
+<p>You have won $<span id="plyScoreA">0</span>.</p>
+<p>The computer has won $<span id="compScoreA">0</span>.</p>
+<hr>
+<p><button id="roll" onclick="roll()">Roll</button></p>
+<p id="firstA">You rolled a <span id="resultA">1</span>.</p>
+<p><button id="double" onclick="double()">Double the stakes</button><button id="noDouble" onclick="noDouble()">Don't double</button></p>
+<p id="secondA">The computer called.</p>
+<p id="thirdA">You won $1.</p>
+<hr>
+
+<h2>What is the computer's strategy?</h2>
+<button id="final" onclick="final()">Reveal</button>
+<div id="finalText">
+	<p>When playing as player A, the computer always doubles when it rolls 1 to 4 and doesn't double when it rolls 5 to 8.</p>
+	<p>Thus, it only "bluffs" when it rolls a 4, but this is just often enough that in the long run it works out the same whether you call or fold on the times it doubles.</p>
+	<hr>
+	<p>When playing as player B, the computer doesn't try to read your mind, otherwise you could get an advantage by double crossing it. It chooses randomly whether to call or fold.</p>
+	<p>It calls two thirds of the time and folds one third of the time. In the long run, it works out the same whether you try to bluff the computer or only double when you have a winning roll.</p>
+</div>
+
+<script type="text/javascript">
+var plyScoreA = 0;
+var plyScoreB = 0;
+var compScoreA = 0;
+var compScoreB = 0;
+var a = 1;
+var b = 1;
+
+document.getElementById("finalText").style.visibility = "hidden";
+document.getElementById("firstA").style.visibility = "hidden";
+document.getElementById("secondA").style.visibility = "hidden";
+document.getElementById("thirdA").style.visibility = "hidden";
+document.getElementById("firstB").style.visibility = "hidden";
+document.getElementById("secondB").style.visibility = "hidden";
+document.getElementById("thirdB").style.visibility = "hidden";
+document.getElementById("call").disabled = true;
+document.getElementById("fold").disabled = true;
+document.getElementById("double").disabled = true;
+document.getElementById("noDouble").disabled = true;
+
+function updateScore() {
+	document.getElementById("plyScoreB").textContent = plyScoreB;
+	document.getElementById("plyScoreA").textContent = plyScoreA;
+	document.getElementById("compScoreA").textContent = compScoreA;
+	document.getElementById("compScoreB").textContent = compScoreB;
+}
+
+function final() {
+	document.getElementById("finalText").style.visibility = "visible";
+}
+
+function letRoll() {
+	document.getElementById("firstB").style.visibility = "hidden";
+	document.getElementById("secondB").style.visibility = "hidden";
+	document.getElementById("thirdB").style.visibility = "hidden";
+	b = Math.floor(Math.random() * 8 + 1);
+	if (b < 5) {
+		document.getElementById("firstB").style.visibility = "visible";
+		document.getElementById("firstB").textContent = "The computer doubled the stakes."
+		document.getElementById("call").disabled = false;
+		document.getElementById("fold").disabled = false;
+		document.getElementById("letRoll").disabled = true;
+	} else {
+		document.getElementById("firstB").style.visibility = "visible";
+		document.getElementById("firstB").textContent = "The computer didn't double the stakes."
+		document.getElementById("secondB").style.visibility = "visible";
+		document.getElementById("resultB").textContent = b;
+		document.getElementById("thirdB").style.visibility = "visible";
+		document.getElementById("thirdB").textContent = "You won $1."
+		plyScoreB += 1;
+		updateScore();
+	}
+}
+
+function fold() {
+	document.getElementById("thirdB").style.visibility = "visible";
+	document.getElementById("thirdB").textContent = "The computer won $1."
+	compScoreB += 1;
+	updateScore();
+	document.getElementById("call").disabled = true;
+	document.getElementById("fold").disabled = true;
+	document.getElementById("letRoll").disabled = false;
+}
+
+function call() {
+	document.getElementById("secondB").style.visibility = "visible";
+	document.getElementById("resultB").textContent = b;
+	document.getElementById("thirdB").style.visibility = "visible";
+	if (b < 4) {
+		document.getElementById("thirdB").textContent = "The computer won $2."
+		compScoreB += 2;
+	} else {
+		document.getElementById("thirdB").textContent = "You won $2."
+		plyScoreB += 2;
+	}
+	updateScore();
+	document.getElementById("call").disabled = true;
+	document.getElementById("fold").disabled = true;
+	document.getElementById("letRoll").disabled = false;
+}
+
+function resetA() {
+	plyScoreA = 0;
+	compScoreA = 0;
+	updateScore();
+}
+
+function resetB() {
+	plyScoreB = 0;
+	compScoreB = 0;
+	updateScore();
+}
+
+function roll() {
+	a = Math.floor(Math.random() * 8 + 1);
+	document.getElementById("firstA").style.visibility = "visible";
+	document.getElementById("secondA").style.visibility = "hidden";
+	document.getElementById("thirdA").style.visibility = "hidden";
+	document.getElementById("resultA").textContent = a;
+	document.getElementById("double").disabled = false;
+	document.getElementById("noDouble").disabled = false;
+	document.getElementById("roll").disabled = true;
+}
+
+function double() {
+	var x = Math.random() * 3;
+	document.getElementById("secondA").style.visibility = "visible";
+	document.getElementById("thirdA").style.visibility = "visible";
+	if (x >= 2) {
+		document.getElementById("secondA").textContent = "The computer folded."
+		plyScoreA += 1;
+		document.getElementById("thirdA").textContent = "You won $1."
+	} else {
+		document.getElementById("secondA").textContent = "The computer called."
+		if (a < 4) {
+			plyScoreA += 2;
+			document.getElementById("thirdA").textContent = "You won $2."
+		} else {
+			compScoreA += 2;
+			document.getElementById("thirdA").textContent = "The computer won $2."
+		}
+	}
+	updateScore();
+	document.getElementById("double").disabled = true;
+	document.getElementById("noDouble").disabled = true;
+	document.getElementById("roll").disabled = false;
+}
+
+function noDouble() {
+	
+	document.getElementById("thirdA").style.visibility = "visible";
+	if (a < 4) {
+		plyScoreA += 1;
+		document.getElementById("thirdA").textContent = "You won $1."
+	} else {
+		compScoreA += 1;
+		document.getElementById("thirdA").textContent = "The computer won $1."
+	}
+	updateScore();
+	document.getElementById("double").disabled = true;
+	document.getElementById("noDouble").disabled = true;
+	document.getElementById("roll").disabled = false;
+}
+
+</script>
+</body>
+</html>
